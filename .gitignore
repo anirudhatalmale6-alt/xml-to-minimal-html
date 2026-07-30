@@ -1,0 +1,6 @@
+feed-cache.xml
+test-jobs-page.html
+page.html
+feed.xml
+*.log
+__pycache__/

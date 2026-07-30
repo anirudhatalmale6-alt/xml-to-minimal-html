@@ -1,0 +1,25 @@
+SCHEDULING THE AUTOMATIC UPDATE
+===============================
+
+You only need this if you go with the Python route (update_page.py). The PHP
+route (jobs.php) needs no schedule at all — it refreshes itself on page load.
+
+--- Linux / cPanel "Cron Jobs" ---
+Run once an hour, on the hour. Adjust the paths to match your host:
+
+  0 * * * * /usr/bin/python3 /home/USER/public_html/update_page.py /home/USER/public_html/jobs-in-racing.html >> /home/USER/jobs-update.log 2>&1
+
+Once a day at 07:00 instead:
+
+  0 7 * * * /usr/bin/python3 /home/USER/public_html/update_page.py /home/USER/public_html/jobs-in-racing.html >> /home/USER/jobs-update.log 2>&1
+
+In cPanel: "Cron Jobs" > add the "Command" part (everything after the 5 time
+fields). Set the schedule with the dropdowns (e.g. "Once an hour").
+
+--- Windows (Task Scheduler) ---
+Program:   python
+Arguments: C:\path\to\update_page.py C:\path\to\jobs-in-racing.html
+Trigger:   Daily (or hourly)
+
+That's it — after setup it runs on its own with zero clicks. The log file shows
+each run (e.g. "Updated ... with 20 jobs.").

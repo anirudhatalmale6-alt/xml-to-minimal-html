@@ -1,43 +1,64 @@
 # Horse Checker — Jobs in Racing (RSS → static HTML)
 
-Fetches the live Careers in Racing RSS feed and writes a block of **static HTML**
-that matches the existing markup on <https://horsechecker.com/jobs-in-racing>.
-No feed widget or JavaScript — real HTML in the page, which is what you want for SEO.
+Fetches the live Careers in Racing RSS feed and renders it as **real static
+HTML** matching the existing markup on <https://horsechecker.com/jobs-in-racing>
+(each job is an `<article class="job-item">` using your current classes, so your
+CSS styles it automatically). No feed widget, no JavaScript — genuine HTML in the
+page, which is what you want for SEO.
 
-Each job becomes one `<article class="job-item">` using your current classes
-(`job-item`, `job-description`, `new`, `custom-btn`, `time`), so your existing
-CSS styles it automatically.
+It always rebuilds from the current feed, so jobs that drop out of the feed
+disappear from the page automatically — no stale listings to remove by hand.
 
-## Requirements
-- Python 3 (standard library only — nothing to install)
-
-## Daily use — one command
-```bash
-python3 generate.py
-```
-It downloads the feed and writes two files:
-- **`jobs.html`** — the `<div class="job-listings">…</div>` block. Paste it into
-  your page in place of the current listings (or copy the inner `<article>`s).
-- **`preview.html`** — a standalone page so you can open it in a browser and
-  check how it looks before publishing.
-
-That's the whole daily job: run it, paste `jobs.html`, done.
-
-## Changing the feed
-Everything is at the top of `generate.py`:
-```python
-FEED_URL = "https://jobs.careersinracing.com/jobsrss/?Sector=1&countrycode=GB"
-```
-Swap that URL (e.g. a different Sector or country code) and re-run — no other
-changes needed. You can also point it at a saved file: `python3 generate.py feed.xml`.
-
-## Notes
-- "New Today" is shown automatically on jobs whose posted date is today; older
-  ones leave that line blank (same as your page).
-- Descriptions are tidied into a single clean line (the feed adds line breaks).
-- Links open in a new tab with `rel="nofollow"`, matching your current markup.
+Requires Python 3 (standard library only) and/or PHP — both are on your Apache host.
 
 ---
 
-`convert.py` in this repo is a small general-purpose XML→HTML converter (any
-Title/Description/Link XML). `generate.py` is the one tailored to your job feed.
+## Pick one of two ways to run it
+
+### 1. Fully automatic, no schedule needed — PHP  (recommended)
+`jobs.php` fetches + caches the feed and prints the listings server-side, so the
+page updates itself on its own and search engines still see real HTML.
+
+- Rename your jobs page to `jobs-in-racing.php` (or keep `.html` + Apache SSI).
+- Inside `<div class="job-listings">`, replace the manual listings with:
+  ```php
+  <?php include __DIR__ . '/jobs.php'; ?>
+  ```
+- Upload `jobs.php` alongside it. Done — it refreshes hourly by itself
+  (cache TTL is set at the top of `jobs.php`; change `3600` to adjust).
+
+### 2. Fully automatic on a schedule — Python + cron
+Keeps the page a pure `.html` file; a scheduled job rewrites it in place.
+
+- One-time: inside `<div class="job-listings">` add two markers:
+  ```html
+  <!-- JOBS:START -->
+  <!-- JOBS:END -->
+  ```
+- Schedule `update_page.py` (see **cron.txt**). Each run replaces everything
+  between the markers with the latest jobs:
+  ```bash
+  python3 update_page.py /path/to/jobs-in-racing.html
+  ```
+
+### Manual (if you ever want to run it by hand)
+`generate.py` writes `jobs.html` (the block to paste) + `preview.html`:
+```bash
+python3 generate.py
+```
+
+---
+
+## Changing the feed
+Edit the URL at the top of `generate.py` / `jobs.php`:
+```
+https://jobs.careersinracing.com/jobsrss/?Sector=1&countrycode=GB
+```
+Swap the Sector / countrycode and re-run — nothing else to change.
+
+## Files
+- `jobs.php`        — server-side renderer (option 1, no schedule)
+- `update_page.py`  — in-place updater for a static .html page (option 2)
+- `generate.py`     — core feed→HTML; also the manual "make me a block" tool
+- `cron.txt`        — how to schedule option 2
+- `convert.py`      — bonus generic XML→HTML converter (any Title/Description/Link XML)
