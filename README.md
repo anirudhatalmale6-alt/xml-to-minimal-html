@@ -13,33 +13,36 @@ Requires Python 3 (standard library only) and/or PHP — both are on your Apache
 
 ---
 
-## Pick one of two ways to run it
+## Recommended: PHP + cron — no renaming, no link changes
 
-### 1. Fully automatic, no schedule needed — PHP  (recommended)
-`jobs.php` fetches + caches the feed and prints the listings server-side, so the
-page updates itself on its own and search engines still see real HTML.
+`update_page.php` is run by a cron job and writes the listings straight into
+your existing `.html` page. Your page stays exactly where it is (no `index.php`,
+no updating any links) and search engines still see real HTML.
 
-- Rename your jobs page to `jobs-in-racing.php` (or keep `.html` + Apache SSI).
-- Inside `<div class="job-listings">`, replace the manual listings with:
-  ```php
-  <?php include __DIR__ . '/jobs.php'; ?>
-  ```
-- Upload `jobs.php` alongside it. Done — it refreshes hourly by itself
-  (cache TTL is set at the top of `jobs.php`; change `3600` to adjust).
+One-time setup:
+1. Inside your `<div class="job-listings">`, delete the manual listings and add
+   these two markers:
+   ```html
+   <!-- JOBS:START -->
+   <!-- JOBS:END -->
+   ```
+2. Upload `update_page.php` to your hosting (e.g. into `public_html`).
+3. Run it once to fill the page (or via cPanel Terminal):
+   ```bash
+   php /home/USER/public_html/update_page.php /home/USER/public_html/jobs-in-racing.html
+   ```
+4. Add a cron job so it runs on its own (see **cron.txt** for exact lines).
 
-### 2. Fully automatic on a schedule — Python + cron
-Keeps the page a pure `.html` file; a scheduled job rewrites it in place.
+Each run rebuilds from the current feed, so new jobs appear and expired ones
+drop off automatically.
 
-- One-time: inside `<div class="job-listings">` add two markers:
-  ```html
-  <!-- JOBS:START -->
-  <!-- JOBS:END -->
-  ```
-- Schedule `update_page.py` (see **cron.txt**). Each run replaces everything
-  between the markers with the latest jobs:
-  ```bash
-  python3 update_page.py /path/to/jobs-in-racing.html
-  ```
+## Alternatives
+
+- **No cron at all — `jobs.php`**: server-side include that refreshes itself on
+  page load. Needs the page to be `.php` (rename + one `include` line), so only
+  use this if you'd rather not set up a cron job.
+- **Python instead of PHP — `update_page.py`**: same in-place updater as the
+  recommended route, if you'd prefer Python. Also driven by cron (see cron.txt).
 
 ### Manual (if you ever want to run it by hand)
 `generate.py` writes `jobs.html` (the block to paste) + `preview.html`:

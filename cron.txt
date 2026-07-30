@@ -1,17 +1,22 @@
 SCHEDULING THE AUTOMATIC UPDATE
 ===============================
 
-You only need this if you go with the Python route (update_page.py). The PHP
-route (jobs.php) needs no schedule at all — it refreshes itself on page load.
+For the recommended PHP route (update_page.php). Swap USER and the file paths
+for your host — and if your jobs page is a folder, point at its file
+(e.g. .../public_html/jobs-in-racing/index.html).
 
 --- Linux / cPanel "Cron Jobs" ---
-Run once an hour, on the hour. Adjust the paths to match your host:
+Run once an hour, on the hour:
 
-  0 * * * * /usr/bin/python3 /home/USER/public_html/update_page.py /home/USER/public_html/jobs-in-racing.html >> /home/USER/jobs-update.log 2>&1
+  0 * * * * /usr/bin/php /home/USER/public_html/update_page.php /home/USER/public_html/jobs-in-racing.html >> /home/USER/jobs-update.log 2>&1
 
 Once a day at 07:00 instead:
 
-  0 7 * * * /usr/bin/python3 /home/USER/public_html/update_page.py /home/USER/public_html/jobs-in-racing.html >> /home/USER/jobs-update.log 2>&1
+  0 7 * * * /usr/bin/php /home/USER/public_html/update_page.php /home/USER/public_html/jobs-in-racing.html >> /home/USER/jobs-update.log 2>&1
+
+(Python equivalent, if you use update_page.py instead — same idea:)
+
+  0 * * * * /usr/bin/python3 /home/USER/public_html/update_page.py /home/USER/public_html/jobs-in-racing.html >> /home/USER/jobs-update.log 2>&1
 
 In cPanel: "Cron Jobs" > add the "Command" part (everything after the 5 time
 fields). Set the schedule with the dropdowns (e.g. "Once an hour").
