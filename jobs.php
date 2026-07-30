@@ -15,6 +15,9 @@
 $FEED_URL   = 'https://jobs.careersinracing.com/jobsrss/?Sector=1&countrycode=GB';
 $CACHE_FILE = __DIR__ . '/feed-cache.xml';
 $CACHE_TTL  = 3600; // seconds (1 hour). Raise/lower to taste.
+$SEEN_FILE  = __DIR__ . '/seen.json'; // remembers when each job first appeared
+$NEW_DAYS   = 3;     // how many days a newly-added job shows the "New" tag
+$NEW_LABEL  = 'New'; // wording of the tag (e.g. 'New', 'New Job', 'Just Added')
 
 function hc_fetch_url($url) {
     // cURL first (works even when allow_url_fopen is disabled on the host)
@@ -58,17 +61,34 @@ $xml = hc_load_feed($FEED_URL, $CACHE_FILE, $CACHE_TTL);
 $rss = $xml ? @simplexml_load_string($xml) : false;
 
 if ($rss && isset($rss->channel->item)) {
-    $today = date('Y-m-d');
+    $now      = time();
+    $firstRun = !is_readable($SEEN_FILE);
+    $seen     = $firstRun ? [] : (json_decode(@file_get_contents($SEEN_FILE), true) ?: []);
+    $current  = [];
+
     foreach ($rss->channel->item as $item) {
         $title = hc_clean($item->title);
         $desc  = hc_clean($item->description);
         $link  = hc_clean($item->link);
         if ($title === '' && $desc === '' && $link === '') continue;
 
-        $ts     = strtotime((string)$item->pubDate) ?: time();
+        $id = $link !== '' ? $link : $title;      // stable identifier per job
+        $ts = strtotime((string)$item->pubDate) ?: $now;
+
+        // When did this job first appear on the page?
+        if (isset($seen[$id])) {
+            $first = (int) $seen[$id];
+        } else {
+            // On the very first run, seed from the posting date so the whole
+            // list isn't flagged "New" at once. After that, a job counts as new
+            // from the moment it first shows up here.
+            $first = $firstRun ? min($ts, $now) : $now;
+        }
+        $current[$id] = $first;
+
+        $isNew  = ($now - $first) < $NEW_DAYS * 86400 ? $NEW_LABEL : '';
         $iso    = gmdate('Y-m-d\TH:i:s\Z', $ts);
         $posted = 'Posted: ' . date('l, d M Y', $ts);
-        $isNew  = (date('Y-m-d', $ts) === $today) ? 'New Today' : '';
 
         $L = htmlspecialchars($link, ENT_QUOTES);
         $T = htmlspecialchars($title, ENT_QUOTES);
@@ -85,4 +105,8 @@ if ($rss && isset($rss->channel->item)) {
 
 HTML;
     }
+
+    // Remember what's on the page now; also prunes jobs that have left the feed
+    // (so if one ever returns, it's treated as new again).
+    @file_put_contents($SEEN_FILE, json_encode($current), LOCK_EX);
 }
