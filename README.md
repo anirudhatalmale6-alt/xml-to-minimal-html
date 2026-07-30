@@ -1,43 +1,43 @@
-# XML → Minimalist HTML
+# Horse Checker — Jobs in Racing (RSS → static HTML)
 
-Turns an XML file where each record has a **Title**, **Description** and **Link**
-into a single, clean, standards-compliant HTML page. No frameworks, no external
-CSS or fonts — just semantic markup and whitespace.
+Fetches the live Careers in Racing RSS feed and writes a block of **static HTML**
+that matches the existing markup on <https://horsechecker.com/jobs-in-racing>.
+No feed widget or JavaScript — real HTML in the page, which is what you want for SEO.
+
+Each job becomes one `<article class="job-item">` using your current classes
+(`job-item`, `job-description`, `new`, `custom-btn`, `time`), so your existing
+CSS styles it automatically.
 
 ## Requirements
-- Python 3 (any recent version — uses only the standard library, nothing to install)
+- Python 3 (standard library only — nothing to install)
 
-## Run it
+## Daily use — one command
 ```bash
-python3 convert.py data.xml output.html
+python3 generate.py
 ```
-- `data.xml`  — your input file
-- `output.html` — the page that gets written
+It downloads the feed and writes two files:
+- **`jobs.html`** — the `<div class="job-listings">…</div>` block. Paste it into
+  your page in place of the current listings (or copy the inner `<article>`s).
+- **`preview.html`** — a standalone page so you can open it in a browser and
+  check how it looks before publishing.
 
-Shortcuts:
-```bash
-python3 convert.py data.xml       # writes data.html next to it
-python3 convert.py                # uses data.xml -> output.html
+That's the whole daily job: run it, paste `jobs.html`, done.
+
+## Changing the feed
+Everything is at the top of `generate.py`:
+```python
+FEED_URL = "https://jobs.careersinracing.com/jobsrss/?Sector=1&countrycode=GB"
 ```
+Swap that URL (e.g. a different Sector or country code) and re-run — no other
+changes needed. You can also point it at a saved file: `python3 generate.py feed.xml`.
 
-Drop in a different XML file and re-run the same command — no code changes needed.
+## Notes
+- "New Today" is shown automatically on jobs whose posted date is today; older
+  ones leave that line blank (same as your page).
+- Descriptions are tidied into a single clean line (the feed adds line breaks).
+- Links open in a new tab with `rel="nofollow"`, matching your current markup.
 
-## XML format
-```xml
-<records>
-  <record>
-    <Title>...</Title>
-    <Description>...</Description>
-    <Link>https://...</Link>
-  </record>
-</records>
-```
-Tag names are matched case-insensitively and a few common aliases are accepted
-(`title/name`, `description/desc/summary`, `link/url/href`). RSS-style
-`<channel><item>...</item></channel>` files also work out of the box. If your
-tags are different, add them to the small lists at the top of `convert.py`.
+---
 
-## Files
-- `convert.py`  — the converter
-- `data.xml`    — sample input
-- `output.html` — sample output
+`convert.py` in this repo is a small general-purpose XML→HTML converter (any
+Title/Description/Link XML). `generate.py` is the one tailored to your job feed.
