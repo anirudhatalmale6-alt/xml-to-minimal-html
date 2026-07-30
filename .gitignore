@@ -4,5 +4,6 @@ test-page.html
 test-page-styled.html
 page.html
 feed.xml
+deploy/
 *.log
 __pycache__/

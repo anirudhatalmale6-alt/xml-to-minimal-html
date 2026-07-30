@@ -32,12 +32,30 @@ $feed = $argc > 2 ? $argv[2] : $FEED_URL;
 
 function hc_clean($s) { return trim(preg_replace('/\s+/', ' ', (string)$s)); }
 
-$ctx = stream_context_create(['http' => [
-    'timeout' => 20,
-    'header'  => "User-Agent: HorseChecker-Jobs/1.0\r\n",
-]]);
-$xml = @file_get_contents($feed, false, $ctx);
-if ($xml === false) { fwrite(STDERR, "Could not fetch feed: $feed\n"); exit(1); }
+function hc_fetch_url($url) {
+    if (function_exists('curl_init')) {
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_TIMEOUT        => 20,
+            CURLOPT_USERAGENT      => 'HorseChecker-Jobs/1.0',
+        ]);
+        $data = curl_exec($ch);
+        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        if ($data !== false && $code >= 200 && $code < 400) return $data;
+    }
+    $ctx = stream_context_create(['http' => [
+        'timeout' => 20,
+        'header'  => "User-Agent: HorseChecker-Jobs/1.0\r\n",
+    ]]);
+    $data = @file_get_contents($url, false, $ctx);
+    return $data === false ? '' : $data;
+}
+
+$xml = hc_fetch_url($feed);
+if ($xml === '') { fwrite(STDERR, "Could not fetch feed: $feed\n"); exit(1); }
 
 $rss = @simplexml_load_string($xml);
 if (!$rss || !isset($rss->channel->item)) { fwrite(STDERR, "No items in feed.\n"); exit(1); }
