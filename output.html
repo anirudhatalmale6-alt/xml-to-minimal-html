@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data</title>
+<style>
+:root { --ink: #1a1a1a; --muted: #666; --rule: #e5e5e5; --link: #0b5fff; }
+* { box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  color: var(--ink);
+  line-height: 1.6;
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 3rem 1.25rem 5rem;
+  background: #fff;
+}
+h1 { font-size: 1.6rem; font-weight: 600; margin: 0 0 2.5rem; }
+article { padding: 1.75rem 0; border-top: 1px solid var(--rule); }
+article:first-of-type { border-top: none; }
+article h2 { font-size: 1.2rem; font-weight: 600; margin: 0 0 .5rem; }
+article p { margin: 0 0 .9rem; color: #333; }
+article a { color: var(--link); text-decoration: none; word-break: break-word; }
+article a:hover { text-decoration: underline; }
+@media (prefers-color-scheme: dark) {
+  :root { --ink: #eaeaea; --muted: #999; --rule: #2a2a2a; --link: #6ea8ff; }
+  body { background: #121212; }
+  article p { color: #cfcfcf; }
+}
+
+</style>
+</head>
+<body>
+<h1>Data</h1>
+<article>
+  <h2>Getting Started with Semantic HTML</h2>
+  <p>A short, practical look at why semantic markup makes pages easier to read, style and maintain over time.</p>
+  <a href="https://example.com/semantic-html">https://example.com/semantic-html</a>
+</article>
+<article>
+  <h2>Whitespace as a Design Tool</h2>
+  <p>How generous spacing improves readability and gives content room to breathe — no widgets required.</p>
+  <a href="https://example.com/whitespace">https://example.com/whitespace</a>
+</article>
+<article>
+  <h2>Choosing Readable Fonts</h2>
+  <p>Notes on picking system fonts that stay legible across devices without any external dependencies.</p>
+  <a href="https://example.com/fonts">https://example.com/fonts</a>
+</article>
+</body>
+</html>

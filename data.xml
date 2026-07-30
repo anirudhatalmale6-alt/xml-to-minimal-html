@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<records>
+  <record>
+    <Title>Getting Started with Semantic HTML</Title>
+    <Description>A short, practical look at why semantic markup makes pages easier to read, style and maintain over time.</Description>
+    <Link>https://example.com/semantic-html</Link>
+  </record>
+  <record>
+    <Title>Whitespace as a Design Tool</Title>
+    <Description>How generous spacing improves readability and gives content room to breathe — no widgets required.</Description>
+    <Link>https://example.com/whitespace</Link>
+  </record>
+  <record>
+    <Title>Choosing Readable Fonts</Title>
+    <Description>Notes on picking system fonts that stay legible across devices without any external dependencies.</Description>
+    <Link>https://example.com/fonts</Link>
+  </record>
+</records>
