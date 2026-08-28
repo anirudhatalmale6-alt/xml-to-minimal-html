@@ -7,3 +7,7 @@ feed.xml
 deploy/
 *.log
 __pycache__/
+
+jobs-last-good.html
+bestbet/
+diag2/
